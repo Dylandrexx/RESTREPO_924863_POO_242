@@ -1,0 +1,120 @@
+# Clase que representa un libro en la biblioteca
+class Book:
+    def __init__(self, title, author, isbn):
+        # Atributos privados para encapsulación
+        self._title = title
+        self._author = author
+        self._isbn = isbn
+        self._available = True  # Estado de disponibilidad del libro
+
+    # Métodos para acceder y modificar los atributos
+    def get_title(self):
+        return self._title
+
+    def get_author(self):
+        return self._author
+
+    def get_isbn(self):
+        return self._isbn
+
+    def is_available(self):
+        return self._available
+
+    def set_availability(self, available):
+        self._available = available
+
+    # Método especial para mostrar el libro como cadena de texto
+    def __str__(self):
+        return f"Title: {self._title}, Author: {self._author}, ISBN: {self._isbn}"
+
+# Clase que representa a un miembro de la biblioteca
+class Member:
+    def __init__(self, name, member_id):
+        # Atributos privados para encapsulación
+        self._name = name
+        self._member_id = member_id
+        self._borrowed_books = []  # Lista de libros prestados
+
+    # Método para agregar un libro a la lista de préstamos del miembro
+    def borrow_book(self, book):
+        if book.is_available():
+            book.set_availability(False)
+            self._borrowed_books.append(book)
+            return True
+        return False
+
+    # Método para devolver un libro
+    def return_book(self, book):
+        if book in self._borrowed_books:
+            book.set_availability(True)
+            self._borrowed_books.remove(book)
+            return True
+        return False
+
+    # Métodos especiales para mostrar el miembro como cadena de texto
+    def __str__(self):
+        return f"Member: {self._name}, ID: {self._member_id}"
+
+    def __repr__(self):
+        books = ', '.join([book.get_title() for book in self._borrowed_books])
+        return f"Member: {self._name}, ID: {self._member_id}, Borrowed Books: [{books}]"
+
+# Clase que representa a un miembro VIP de la biblioteca, heredando de Member
+class VIPMember(Member):
+    def __init__(self, name, member_id, borrow_limit=10):
+        super().__init__(name, member_id)
+        self._borrow_limit = borrow_limit  # Límite de libros para miembro VIP
+
+    # Sobrescribimos el método de préstamo para respetar el límite de préstamos
+    def borrow_book(self, book):
+        if len(self._borrowed_books) < self._borrow_limit:
+            return super().borrow_book(book)
+        return False
+
+    # Sobrescribimos __repr__ para mostrar el tipo de miembro y el límite de préstamos
+    def __repr__(self):
+        books = ', '.join([book.get_title() for book in self._borrowed_books])
+        return f"VIP Member: {self._name}, ID: {self._member_id}, Borrowed Books: [{books}], Borrow Limit: {self._borrow_limit}"
+
+# Método de prueba
+def test_library_system():
+    # Crear instancias de libros
+    book1 = Book("El principito", "Antoine de Saint-Exupery", "123456789")
+    book2 = Book("El amor en los tiempos del colera", "Gabriel Garcia Marquez", "987654321")
+
+    # Crear instancias de miembros
+    member = Member("Jesus", "M001")
+    vip_member = VIPMember("Dylan", "VIP001")
+
+    # Prueba de préstamo y devolución de libros
+    print(member)
+    print(vip_member)
+
+    # Miembro toma prestado un libro
+    if member.borrow_book(book1):
+        print(f"{member} borrowed {book1.get_title()}")
+    else:
+        print(f"{member} could not borrow {book1.get_title()}")
+
+    # VIP miembro toma prestado un libro
+    if vip_member.borrow_book(book2):
+        print(f"{vip_member} borrowed {book2.get_title()}")
+    else:
+        print(f"{vip_member} could not borrow {book2.get_title()}")
+
+    # Mostrar detalles de miembros con libros prestados
+    print(repr(member))
+    print(repr(vip_member))
+
+    # Miembro devuelve el libro
+    if member.return_book(book1):
+        print(f"{member} returned {book1.get_title()}")
+    else:
+        print(f"{member} could not return {book1.get_title()}")
+
+    # Mostrar detalles finales de miembros
+    print(repr(member))
+    print(repr(vip_member))
+
+# Ejecutar la prueba
+test_library_system()
